@@ -1,0 +1,46 @@
+#!/bin/sh -e
+
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+/boot/backup/restore.sh
+#######################DO NOT CHANGE ABOVE THIS LINE ###############################
+
+# To create a Hostspot only - uncomment dnsmasq and comment everything else
+#service dnsmasq start
+#echo "starting openvpn"
+#sleep 60
+#openvpn /etc/openvpn/client.conf &
+#/etc/init.d/ssh start &
+
+####################### Uncomment below for NAC Bypass ##############################
+
+#dolos_cloak
+systemctl stop NetworkManager.service
+systemctl disable NetworkManager.service
+> /etc/resolv.conf
+ifconfig eth0 down
+#make sure the current.log exists so we don't error out
+touch /root/tools/dolos_cloak/logs/current.log
+cat /root/tools/dolos_cloak/logs/current.log >> /root/tools/dolos_cloak/logs/history.log
+> /root/tools/dolos_cloak/logs/current.log
+python /root/tools/dolos_cloak/autosniff.py > /root/tools/dolos_cloak/logs/current.log 2>&1 &
+ifconfig eth0 169.254.44.44/24
+ifconfig eth0 up
+udhcpd /etc/udhcpd-eth0.conf
+#ifconfig wlan0 169.254.44.44/24
+#ifconfig wlan0 up
+#hostapd -B /etc/hostapd/hostapd.conf
+#udhcpd /etc/udhcpd-wlan0.conf
+/etc/init.d/ssh start &
+
+exit 0

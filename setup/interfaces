@@ -1,0 +1,47 @@
+#the loopback network interface
+auto lo
+iface lo inet loopback
+
+#auto wlan0
+#allow-hotplug wlan0
+#iface wlan0 inet static
+#address 169.254.44.44
+#netmask 255.255.255.0
+#broadcast 169.254.44.255
+
+######################## Use this for Eth0 on NAC bypass #########################
+
+#auto eth0
+#iface eth0 inet static
+#address 169.254.44.44
+#netmask 255.255.255.0
+#broadcast 169.254.44.255
+
+####################### Use this for Eth0 on dropbox #########################
+
+#auto eth0
+#iface eth0 inet dhcp
+
+####################### Use this for slimshim setup #########################
+
+auto eth0
+iface eth0 inet static
+    address 169.254.44.44
+    netmask 255.255.255.0
+    broadcast 169.254.44.255
+
+
+auto usbnet0
+iface usbnet0 inet manual
+    up ifconfig $IFACE up
+
+auto usbnet1
+iface usbnet1 inet manual
+    up ifconfig $IFACE up
+
+auto wlan0
+iface wlan0 inet static
+    address 192.0.0.1
+    netmask 255.255.255.0
+
+
