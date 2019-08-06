@@ -1,8 +1,6 @@
 iface0: 'usbnet0'
 iface1: 'usbnet1'
 management_int: 'eth0'
-wwan_int: ''
-wwan_apn: 'vzwinternet'
 radio_silence: 'OFF'
 enable_ipv6: 'OFF'
 client_ip: ''
@@ -11,4 +9,5 @@ gateway_ip: ''
 gateway_mac: ''
 domain_name: ''
 dns_server: ''
-auto_run: {switch: 'TRUE', command: 'python /root/tools/dolos_cloak/launcher.py'}
+auto_run: {switch: 'OFF', command: 'python /root/tools/dolos_cloak/empire_stager.py'}
+hidden_service: {switch: 'OFF', kind: 'TCP', rport: '8443', lport: '8443'}

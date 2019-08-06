@@ -29,11 +29,11 @@ systemctl stop NetworkManager.service
 systemctl disable NetworkManager.service
 > /etc/resolv.conf
 ifconfig eth0 down
-#make sure the current.log exists so we don't error out
-touch /root/tools/dolos_cloak/logs/current.log
-cat /root/tools/dolos_cloak/logs/current.log >> /root/tools/dolos_cloak/logs/history.log
-> /root/tools/dolos_cloak/logs/current.log
-python /root/tools/dolos_cloak/autosniff.py > /root/tools/dolos_cloak/logs/current.log 2>&1 &
+#make sure the session.log exists so we don't error out
+touch /root/tools/dolos_cloak/logs/session.log
+cat /root/tools/dolos_cloak/logs/session.log >> /root/tools/dolos_cloak/logs/history.log
+> /root/tools/dolos_cloak/logs/session.log
+python /root/tools/dolos_cloak/autosniff.py > /root/tools/dolos_cloak/logs/session.log 2>&1 &
 ifconfig eth0 169.254.44.44/24
 ifconfig eth0 up
 udhcpd /etc/udhcpd-eth0.conf
