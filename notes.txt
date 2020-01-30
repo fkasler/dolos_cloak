@@ -1,7 +1,0 @@
-nmcli c add type gsm ifname cdc-wdm0 con-name vzw apn vzwinternet
-nmcli c up vzw
-
-or maybe:
-
-nmcli c add type gsm ifname gsmmodem con-name vzw apn vzwinternet
-nmcli c up vzw
