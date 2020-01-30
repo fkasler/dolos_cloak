@@ -3,6 +3,10 @@ Dolos Cloak
 
 Dolos Cloak is a python script designed to help network penetration testers and red teamers bypass 802.1x solutions by using an advanced man-in-the-middle attack. The tool is able to piggyback on the wired connection of a victim device that is already allowed on the target network without kicking the vicitim device off the network. It was designed to run on an Odroid C2 running Kali ARM and requires two external USB ethernet dongles. It should be possible to run the tool on other hardware and distros but it has only been tested on an Odroid C2 thus far.
 
+by Forrest Kasler ([fkasler](https://twitter.com/fkasler))(ph3eds)
+
+[![Foo](https://raw.githubusercontent.com/toolswatch/badges/master/arsenal/usa/2019.svg?sanitize=true)](https://www.blackhat.com/us-19/arsenal/schedule/index.html#dolos-cloak-your-nac-cant-see-this-15250)
+
 How it Works
 ============
 
